@@ -4,26 +4,21 @@ from sklearn.metrics import classification_report, accuracy_score, precision_sco
 from transformers import BertTokenizer, BertForSequenceClassification
 import gradio as gr
 
-# Load tokenizer and model from saved directory
 model_path = "./saved_model"
 tokenizer = BertTokenizer.from_pretrained(model_path)
 model = BertForSequenceClassification.from_pretrained(model_path)
 
-# Load validation set
 df = pd.read_csv("single_word_abuse_dataset.csv")
 
-# Encode labels
 from sklearn.preprocessing import LabelEncoder
 label_encoder = LabelEncoder()
 df['label_enc'] = label_encoder.fit_transform(df['label'])
 
-# Split for evaluation only
 from sklearn.model_selection import train_test_split
 _, val_texts, _, val_labels = train_test_split(
     df['text'], df['label_enc'], test_size=0.2, stratify=df['label_enc'], random_state=42
 )
 
-# Evaluate performance
 def evaluate_model():
     model.eval()
     predictions, true_labels = [], []
@@ -37,10 +32,8 @@ def evaluate_model():
             predictions.append(pred)
             true_labels.append(label)
 
-    # Classification report
     report = classification_report(true_labels, predictions, target_names=label_encoder.classes_)
 
-    # Metrics
     accuracy = accuracy_score(true_labels, predictions)
     precision = precision_score(true_labels, predictions, average='weighted')
     recall = recall_score(true_labels, predictions, average='weighted')
@@ -55,7 +48,6 @@ def evaluate_model():
     """
     return metrics
 
-# Inference function for multiple lines + hate count
 def predict_hate_speech(text):
     model.eval()
     lines = text.strip().split('\n')
@@ -80,13 +72,11 @@ def predict_hate_speech(text):
     summary = f"\n\n🔍 Total Hate/Abusive Lines Detected: {hate_count} / {len(lines)}"
     return result + summary
 
-# Interface function
 def app_interface(text):
     prediction = predict_hate_speech(text)
     metrics = evaluate_model()
     return f"{prediction}\n\n📊 Model Evaluation:\n{metrics}"
 
-# Gradio UI
 iface = gr.Interface(
     fn=app_interface,
     inputs=gr.Textbox(lines=10, placeholder="Enter multiple lines of text, one per line..."),
