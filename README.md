@@ -108,3 +108,6 @@ The model's performance is evaluated using standard classification metrics:
 
 *Evaluation results and metrics can be found in the `logs/` directory.*
 
+**Output**
+![image](https://github.com/user-attachments/assets/6f6ee996-58f4-4fd8-a755-322cb35e6394)
+
